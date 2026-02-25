@@ -58,7 +58,7 @@ afterAll(async () => {
 
 // TEST 1 — CONCURRENCY BARRIER
 describe("Concurrency Barrier", () => {
-    test("10 concurrent requests for 5 stock — no overselling", async () => {
+    test("500 concurrent requests for 5 stock — no overselling", async () => {
         const product = await Product.create({
             name: "Limited Edition Keyboard",
             category: "Electronics",
@@ -67,8 +67,8 @@ describe("Concurrency Barrier", () => {
             saleStartTime: new Date(),
         });
 
-        // Fire 10 concurrent purchase requests
-        const requests = Array.from({ length: 10 }, (_, i) =>
+        // Fire 500 concurrent purchase requests
+        const requests = Array.from({ length: 500 }, (_, i) =>
             makeRequest(
                 "POST",
                 "/api/order",

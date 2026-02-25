@@ -184,6 +184,5 @@ npm run jestTest
 ```
 
 Tests cover:
-- **Concurrency Barrier** — 500 simultaneous requests for 5 stock items
-- **Idempotency** — Duplicate key returns same order
-- **Validation** — Missing/invalid inputs return 400
+- **Concurrency Barrier** — 500 simultaneous requests for 5 stock items, proves no overselling
+- **Idempotency** — Duplicate key returns same order, stock only decremented once
