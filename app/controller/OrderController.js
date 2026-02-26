@@ -32,10 +32,10 @@ class OrderController {
 
       try {
         // ---Find and update---//
-          const updated = await Product.findOneAndUpdate(
+        const updated = await Product.findOneAndUpdate(
           { _id: productId, stock: { $gte: quantity } },
           { $inc: { stock: -quantity } },
-          { new: true, session }
+          { returnDocument: 'after', session }
         );
 
         if (!updated) {
@@ -74,6 +74,15 @@ class OrderController {
         // ---ABORT TRANSACTION---//
         await session.abortTransaction();
         session.endSession();
+
+        // Write conflict = another buyer grabbed stock first → treat as out of stock
+        if (err.code === 112 || err.codeName === 'WriteConflict' ||
+          (err.errorLabels && err.errorLabels.includes('TransientTransactionError'))) {
+          const conflictErr = new Error("Product out of stock");
+          conflictErr.status = 409;
+          throw conflictErr;
+        }
+
         throw err;
       }
 
