@@ -8,7 +8,22 @@ const config = require(__dirname + '/../config/config.json')[env];
 const mongoUri = process.env.MONGO_URI || config.database.url;
 
 if (mongoUri) {
-  Mongoose.connect(mongoUri);
+  Mongoose.connect(mongoUri).then(() => {
+    console.log('MongoDB connected successfully');
+  })
+    .catch(async (err) => {
+      console.error('MongoDB connection error:', err);
+    });
+  Mongoose.connection.on('error', async (err) => {
+    console.error('MongoDB connection error:', err);
+  });
+  Mongoose.connection.on('disconnected', async () => {
+    console.log('MongoDB disconnected. Attempting to reconnect...');
+  });
+
+  Mongoose.connection.on('reconnected', () => {
+    console.log('MongoDB reconnected successfully');
+  });
 } else if (config.database.config.dbName) {
   Mongoose.connect(`${config.database.protocol}://${config.database.username}:${config.database.password}@${config.database.host}:${config.database.port}`, config.database.options);
 } else {
@@ -27,7 +42,6 @@ const db = () => {
       const model = require(path.resolve(__dirname, file))(Mongoose);
       m[model.modelName] = model;
     });
-  console.log("conncted");
   return m;
 }
 
